@@ -1,33 +1,60 @@
 const axios = require('axios');
-module.exports.config = {
-  name: 'ai',
-  version: '1.0.0',
-  role: 0,
-  hasPrefix: false,
-  aliases: ['gpt', 'openai'],
-  description: "An AI command powered by GPT-4",
-  usage: "Ai [promot]",
-  credits: 'Developer',
-  cooldown: 3,
-};
-module.exports.run = async function({
-  api,
-  event,
-  args
-}) {
-  const input = args.join(' ');
-  if (!input) {
-    api.sendMessage(`Please provide a question or statement after 'ai'. For example: 'ai What is the capital of France?'`, event.threadID, event.messageID);
-    return;
-  }
-  api.sendMessage(`🔍 "${input}"`, event.threadID, event.messageID);
-  try {
-    const {
-      data
-    } = await axios.get(`https://soyeon-gpt4.onrender.com/api?prompt=${encodeURIComponent(input)}`);
-    const response = data.response;
-    api.sendMessage(response + '\n\nhttps://bit.ly/create-chatbot-me', event.threadID, event.messageID);
-  } catch (error) {
-    api.sendMessage('An error occurred while processing your request.', event.threadID, event.messageID);
+
+const Prefixes = [
+  '/ai',
+  'bot',
+  'salut',
+  '+ai',
+  'hum',
+  'ai',
+  'ask',
+];
+
+module.exports = {
+  config: {
+    name: "ask",
+    version: 1.0,
+    author: "OtinXSandip",
+    longDescription: "AI",
+    category: "ai",
+    guide: {
+      en: "{p} questions",
+    },
+  },
+  onStart: async function () {},
+  onChat: async function ({ api, event, args, message }) {
+    try {
+      
+      const prefix = Prefixes.find((p) => event.body && event.body.toLowerCase().startsWith(p));
+      if (!prefix) {
+        return; // Invalid prefix, ignore the command
+      }
+      const prompt = event.body.substring(prefix.length).trim();
+   if (!prompt) {
+        await message.reply("⚪TOMOURA く悔 🟢 \n.....................\n 𝒔𝒂𝒍𝒖𝒕 𝒂𝒍𝒍𝒆𝒛-𝒚 𝒑𝒐𝒔𝒆́ 𝒗𝒐𝒕𝒓𝒆 𝒒𝒖𝒆𝒔𝒕𝒊𝒐𝒏 🇨🇮  ");
+        return;
+      }
+
+
+      const response = await axios.get(`https://sandipbaruwal.onrender.com/gpt?prompt=${encodeURIComponent(prompt)}`);
+      const answer = response.data.answer;
+
+ 
+    await message.reply({ body: `🟢TOMOURA く悔 ⚪
+ 
+     ━━━━━━ - ━━━━━━
+
+
+
+${answer}
+
+
+
+     ━━━━━━ - ━━━━━━ `,
+});
+
+   } catch (error) {
+      console.error("Error:", error.message);
+    }
   }
 };
